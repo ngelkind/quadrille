@@ -1,0 +1,30 @@
+// Edge cases: automatic ranges from every kind of element, empty graphs, odd inputs.
+#import "/lib.typ": *
+#set page(width: 18cm, height: auto, margin: 1cm)
+#show: body => { set page(height: auto); body }
+
+#pagebreak(weak: true)
+#graph(parametric(t => (3 * calc.cos(t), 2 * calc.sin(t))))
+#pagebreak(weak: true)
+#graph()
+#pagebreak(weak: true)
+#graph(vline(3), hline(-2))
+#pagebreak(weak: true)
+#graph(vector((4, 3)), annotate((-1, 1), [here]))
+#pagebreak(weak: true)
+#graph(fn(x => 5), x: (0, 1))
+#pagebreak(weak: true)
+#graph(points((1e-6, 2e6), (3e-6, 5e6), connect: true))
+#pagebreak(weak: true)
+#graph(fn(x => calc.ln(x), domain: (0.01, 10)), axes: none, grid: false)
+#pagebreak(weak: true)
+#graph(fn(x => x * x, step: 1), points(x => x * x, domain: (-3, 3)), x: (-3, 3), y: (0, 9), axes: "edge")
+#pagebreak(weak: true)
+#graph(area(x => calc.sin(x), x => calc.cos(x), domain: (0, calc.pi)), clip: false, x: (0, 4), y: (-1.5, 1.5))
+#pagebreak(weak: true)
+#graph(x: (-1, 1), y: (-1, 1), scale: 2cm, legend: none, ticks: none,
+  fn(x => x, label: [a]), segment((-2, -2), (2, 2), label: [b]))
+#pagebreak(weak: true)
+#graph(fn(x => calc.pow(10, x), domain: (-3, 6)))
+#pagebreak(weak: true)
+#graph(x: (0, 10), y: (0, 10), width: 4cm, height: 2cm, step: 1)

@@ -1,0 +1,4 @@
+tests/*.png
+tests/*.pdf
+*.pdf
+.DS_Store
