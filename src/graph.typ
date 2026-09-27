@@ -374,13 +374,19 @@
           let xs = spaced(a, b, if e.step == auto { xstep } else { e.step }, 1)
           xs.map(xv => { let v = value-at(e.f, xv, "points"); if v != none { (xv, v) } }).filter(p => p != none)
         } else { e.pts }
-        if e.connect and pts.len() > 1 {
+        if e.connect != none and pts.len() > 1 {
           let path = pts.map(p => (float(p.at(0)), float(p.at(1))))
-          if e.close { path.push(path.first()) }
           if e.close and e.fill != none {
             under.push(_curve(path.map(P), fill: if e.fill == auto { color.transparentize(st.area) } else { e.fill }, closed: true))
           }
-          for r in visible-runs(path, window) {
+          // "path": one line through the points in order; "all": a line between every two
+          let parts = ()
+          if e.connect == "all" {
+            for i in range(path.len()) {
+              for j in range(i + 1, path.len()) { parts.push((path.at(i), path.at(j))) }
+            }
+          } else { parts.push(if e.close { path + (path.first(),) } else { path }) }
+          for r in parts.map(part => visible-runs(part, window)).join() {
             let pr = r.map(P)
             lines.push(_curve(pr, stroke: s))
             ink.push(pr)
@@ -411,7 +417,7 @@
       if e.label != none {
         let key = if k == "points" {
           box(width: 1.6em, height: 0.8em, {
-            if e.connect { place(horizon + left, line(length: 100%, stroke: s)) }
+            if e.connect != none { place(horizon + left, line(length: 100%, stroke: s)) }
             place(center + horizon, box(width: 0pt, height: 0pt,
               _mark(e.mark, (0, 0), _pt(if e.size == auto { st.mark } else { e.size }), color)))
           })

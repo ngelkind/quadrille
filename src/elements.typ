@@ -62,8 +62,9 @@
 /// Or marks on a function: points(f, step: 0.5) puts one at every step of x.
 ///
 /// - mark: "dot", "circle" (open), "square", "diamond", "triangle", "cross", "plus" or none.
-/// - connect: draw lines from each point to the next. close: also join the last to the first.
-/// - fill: fills the shape when close is true.
+/// - connect: true draws lines from each point to the next, "all" joins every two points
+///   (the whole figure). close: also join the last to the first.
+/// - fill: fills the shape (in the order given) when close is true or connect is "all".
 #let points(..args, mark: "dot", size: auto, connect: false, close: false, fill: none,
             stroke: auto, label: none, domain: auto, step: auto, pos: auto) = {
   assert(args.named().len() == 0,
@@ -81,11 +82,14 @@
   for p in given { _check-point("points", p) }
   assert(f != none or given.len() > 0, message: "quadrille: points: no points given")
   _check-range("points", "domain", domain)
+  assert(connect in (true, false, "all"),
+    message: "quadrille: points: connect must be true, false or \"all\", got " + repr(connect))
   assert(mark in (none, "dot", "circle", "square", "diamond", "triangle", "cross", "plus"),
     message: "quadrille: points: unknown mark " + repr(mark)
       + " (use \"dot\", \"circle\", \"square\", \"diamond\", \"triangle\", \"cross\", \"plus\" or none)")
-  (kind: "points", pts: given, f: f, body: body, mark: mark, size: size, connect: connect or close,
-   close: close, fill: fill, stroke: stroke, label: label, domain: domain, step: step, pos: pos)
+  (kind: "points", pts: given, f: f, body: body, mark: mark, size: size,
+   connect: if connect == "all" { "all" } else if connect or close { "path" } else { none },
+   close: close or connect == "all", fill: fill, stroke: stroke, label: label, domain: domain, step: step, pos: pos)
 }
 
 /// The segment from a to b. With extend: true, the whole line through a and b.

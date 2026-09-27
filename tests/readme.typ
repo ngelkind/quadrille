@@ -53,3 +53,8 @@
 #std.grid(columns: (1fr, 1fr), column-gutter: 1em, quadrille.graph(fn(x => x * x), width: 100%), quadrille.graph(fn(x => -x), width: 100%, height: 3cm))
 #pagebreak(weak: true)
 #graph(area(4, domain: (0, 3)), annotate((1.5, 2), [$Delta x = v t$], pos: top))
+
+#pagebreak(weak: true)
+#graph(x: (-4, 4), y: (-1, 5), scale: 8mm,
+  points((-3, 0, $q_2$), (3, 0, $q_1$), (0, 4, $A$), connect: "all"),
+)

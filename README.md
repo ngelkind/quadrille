@@ -5,7 +5,7 @@ physics homework, with grid steps, scale and cropping you choose. Written in pla
 Typst, with no dependencies.
 
 ```typst
-#import "@preview/quadrille:0.1.0": *
+#import "@preview/quadrille:0.2.0": *
 
 #graph(
   x: (-3, 3), y: (-1, 6), scale: 8mm,
@@ -61,7 +61,7 @@ share one power of ten, written once at the end of the axis (`× 10⁻³`).
 |---|---|
 | `fn(f)` | the graph of y = f(x). Options: `domain`, `step` or `samples` (how densely it is sampled, default 400 values), `stroke`, `label` |
 | `parametric(f)` | the curve `t => (x, y)` for t in `domain` (default 0 to 2π) |
-| `points(p, q, …)` | points; also `points(data)` with `data` an array of points, or `points(f, step: 0.5)`: marks on a function. Options: `mark` (`"dot"`, `"circle"`, `"square"`, `"diamond"`, `"triangle"`, `"cross"`, `"plus"`, `none`), `size`, `connect: true` (lines from each point to the next), `close: true` (also back to the first), `fill` (for closed shapes), `stroke`, `label` |
+| `points(p, q, …)` | points; also `points(data)` with `data` an array of points, or `points(f, step: 0.5)`: marks on a function. Options: `mark` (`"dot"`, `"circle"`, `"square"`, `"diamond"`, `"triangle"`, `"cross"`, `"plus"`, `none`), `size`, `connect: true` (lines from each point to the next), `close: true` (also back to the first), `connect: "all"` (a line between every two points: the whole figure), `fill` (for closed shapes, in the order the points are given), `stroke`, `label` |
 | `segment(a, b)` | the segment from a to b; `extend: true` draws the whole line through a and b |
 | `vector(to)`, `vector(from, to)` | an arrow; `vector(to)` starts at the origin |
 | `hline(y)`, `vline(x)` | a dashed line across the graph (asymptotes, x = 2) |
@@ -110,6 +110,14 @@ drawn there.
 #graph(x: (-3, 3), y: (-2, 4), scale: 8mm,
   fn(x => x + 2, domain: (-3, 0), stroke: c1), points((0, 2), mark: "circle", stroke: c1),
   fn(x => x * x, domain: (0, 3), stroke: c2), points((0, 0), stroke: c2),
+)
+```
+
+**A figure from its corners** (every two points joined, diagonals included):
+
+```typst
+#graph(x: (-4, 4), y: (-1, 5), scale: 8mm,
+  points((-3, 0, $q_2$), (3, 0, $q_1$), (0, 4, $A$), connect: "all"),
 )
 ```
 
