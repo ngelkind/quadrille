@@ -529,7 +529,8 @@
         let color = if e.fill == auto { s.paint.transparentize(st.area) } else { e.fill }
         under.push(_curve((c,) + pts + (c,), fill: color, closed: true))
       }
-      lines.push(_curve(pts, stroke: s))
+      // under the lines, with flat ends: a side drawn over it hides where the arc meets it
+      under.push(_curve(pts, stroke: (..s, cap: "butt", join: "miter")))
       ink.push(pts)
       marked.push(pts)
       // the name on the bisector, just outside the arc

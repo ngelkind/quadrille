@@ -1,6 +1,6 @@
 // quadrille - graph paper for Typst: functions, points, lines and vectors on a grid.
 //
-//   #import "@preview/quadrille:0.3.1": *
+//   #import "@preview/quadrille:0.3.2": *
 //   #graph(x: (-3, 3), y: (-1, 9), fn(x => x * x), points((2, 4, $A$)))
 
 #import "src/graph.typ": graph
