@@ -5,7 +5,7 @@ physics homework, with grid steps, scale and cropping you choose. Written in pla
 Typst, with no dependencies.
 
 ```typst
-#import "@preview/quadrille:0.3.0": *
+#import "@preview/quadrille:0.3.1": *
 
 #graph(
   x: (-3, 3), y: (-1, 6), scale: 8mm,

@@ -33,3 +33,10 @@
 
 // alone in a graph (the window fits its vertex); a Hebrew name
 #graph(arc((1, 1), (2, 1), (1, 2), [ב]))
+
+// a vertex on the y axis: the tick number 3.5 would hide the arc, so it is left out
+#graph(x: (-4, 4), y: (-1, 5), scale: 12mm,
+  points((-3, 0, $q_2$), (3, 0, $q_1$), (0, 4, $A$), connect: "all"),
+  segment((0, 0), (0, 4), stroke: 1.3pt + blue),
+  arc((0, 4), (0, 0), (-3, 0)),
+)

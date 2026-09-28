@@ -316,6 +316,7 @@
   let ink = ()       // polylines in pt, for placing texts around them
   let texts = ()     // (ats, prefs, body, size, pad) - placed after everything is drawn
   let keys = ()      // legend entries: (swatch, label)
+  let marked = ()    // angle marks in pt: tick numbers under them are left out
   let series = 0     // next palette slot
   let last-color = st.palette.at(0)
   let any-side = (right, top + right, bottom + right, top, bottom, top + left, bottom + left, left)
@@ -530,6 +531,7 @@
       }
       lines.push(_curve(pts, stroke: s))
       ink.push(pts)
+      marked.push(pts)
       // the name on the bisector, just outside the arc
       let mid = ta + sweep * 1deg / 2
       let (nx, ny) = (calc.cos(mid), calc.sin(mid))
@@ -600,14 +602,24 @@
   let put(body, r) = (x: r.x, y: r.y, w: r.w, h: r.h, body: body)
 
   // tick numbers, the lonely 0 of a shared origin, and the axis names: fixed places
+  // (a number that would hide an angle mark is left out)
+  let under-marks = (:)
+  for path in marked { for c in _cells-of-path(path) { under-marks.insert(c, true) } }
+  let clear(t) = {
+    if marked.len() == 0 { return true }
+    let (w, h) = measured(t.body)
+    not _cells-of-rect(_rect(t.at, t.pos, w, h, gap)).any(c => c in under-marks)
+  }
   let fixed = ()
   for (v, body) in thin(xt, 0) {
     if origin-shared and near(v, 0, x1 - x0) { continue }
-    fixed.push((at: (X(v), axy + tick / 2), pos: bottom, body: halo(number(body))))
+    let t = (at: (X(v), axy + tick / 2), pos: bottom, body: halo(number(body)))
+    if clear(t) { fixed.push(t) }
   }
   for (v, body) in thin(yt, 1) {
     if origin-shared and near(v, 0, y1 - y0) { continue }
-    fixed.push((at: (axx - tick / 2, Y(v)), pos: left, body: halo(number(body))))
+    let t = (at: (axx - tick / 2, Y(v)), pos: left, body: halo(number(body)))
+    if clear(t) { fixed.push(t) }
   }
   if origin-shared and (xt.any(t => near(t.at(0), 0, x1 - x0)) or yt.any(t => near(t.at(0), 0, y1 - y0))) {
     fixed.push((at: (axx, axy), pos: bottom + left, body: halo(number($0$))))
