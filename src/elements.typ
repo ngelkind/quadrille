@@ -153,3 +153,42 @@
   _check-point("annotate", p)
   (kind: "annotate", p: p, body: body, pos: pos, label: none)
 }
+
+/// The angle at `vertex` between the rays to `from` and to `to` (the smaller of the two),
+/// drawn as an arc; a right angle gets a square corner.
+/// (Not called `angle`, which would hide Typst's angle type and the symbol $angle$.)
+///
+/// - a trailing text names it: arc(B, A, C, $alpha$).
+/// - value: none, auto (write the measured size: 53.1°) or a given size, 60deg or 60 (in degrees),
+///   for drawings that are not to scale. With a name it is written α = 60°.
+/// - radius: the arc's radius on paper (auto: about 6 mm, smaller on short sides).
+/// - right: auto (a square corner when the angle is 90°), true or false.
+/// - fill: none, auto (the stroke color, see-through) or a color.
+#let arc(vertex, from, to, ..body, value: none, radius: auto, right: auto, stroke: auto,
+         fill: none, label: none, pos: auto) = {
+  for p in (vertex, from, to) { _check-point("arc", p) }
+  let (vx, vy) = (vertex.at(0), vertex.at(1))
+  let (ax, ay) = (from.at(0) - vx, from.at(1) - vy)
+  let (bx, by) = (to.at(0) - vx, to.at(1) - vy)
+  assert(ax != 0 or ay != 0, message: "quadrille: arc: `from` is the vertex itself: it gives no direction")
+  assert(bx != 0 or by != 0, message: "quadrille: arc: `to` is the vertex itself: it gives no direction")
+  assert(value == none or value == auto or _number(value) or type(value) == angle,
+    message: "quadrille: arc: value must be none, auto or a size such as 60deg, got " + repr(value))
+  assert(radius == auto or type(radius) == length,
+    message: "quadrille: arc: radius is a length on paper such as 6mm, got " + repr(radius))
+  assert(right in (auto, true, false), message: "quadrille: arc: right must be auto, true or false")
+  // the size of the angle, in degrees (0 to 180)
+  let cos = (ax * bx + ay * by) / calc.sqrt((ax * ax + ay * ay) * (bx * bx + by * by))
+  let measured = calc.acos(calc.max(-1, calc.min(1, cos))).deg()
+  let name = _body("arc", body)
+  let size = if value == auto { measured } else if type(value) == angle { value.deg() } else { value }
+  let shown = if size == none { none } else {
+    let v = calc.round(size, digits: 1)
+    let v = if v == calc.round(v) { int(v) } else { v }
+    [#v#sym.degree]
+  }
+  (kind: "arc", vertex: vertex, from: from, to: to,
+   body: if name == none { shown } else if shown == none { name } else { $#name = #shown$ },
+   radius: radius, right: if right == auto { calc.abs(measured - 90) < 1e-6 } else { right },
+   stroke: stroke, fill: fill, label: label, pos: pos)
+}

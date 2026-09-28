@@ -1,11 +1,11 @@
 # quadrille
 
-Graph paper for Typst: plot functions, points, lines and vectors for math and
+Graph paper for Typst: plot functions, points, lines, vectors and angles for math and
 physics homework, with grid steps, scale and cropping you choose. Written in plain
 Typst, with no dependencies.
 
 ```typst
-#import "@preview/quadrille:0.2.0": *
+#import "@preview/quadrille:0.3.0": *
 
 #graph(
   x: (-3, 3), y: (-1, 6), scale: 8mm,
@@ -67,10 +67,11 @@ share one power of ten, written once at the end of the axis (`× 10⁻³`).
 | `hline(y)`, `vline(x)` | a dashed line across the graph (asymptotes, x = 2) |
 | `area(f)`, `area(f, g)` | fills between f and the x axis, or between f and g, over `domain`. `f` and `g` may be numbers: `area(4, domain: (0, 3))` |
 | `annotate(p, body)` | text or math at a point; `pos: top` puts it above the point |
+| `arc(vertex, from, to)` | the angle at `vertex` between the rays to `from` and to `to` (the smaller one), as an arc; a right angle gets a square corner. Options: `value` (`auto` writes the measured size, `60deg` or `60` a given one), `radius`, `right` (`auto`, `true`, `false`), `stroke`, `fill`, `label` |
 
-`vector` and `annotate` are not called `arrow` and `note` on purpose: those names
-belong to math (`$arrow(F)$`) and to the music-note symbols, and importing
-quadrille must not hide them.
+`vector`, `annotate` and `arc` are not called `arrow`, `note` and `angle` on purpose:
+those names belong to math (`$arrow(F)$`, `$angle$`), to the music-note symbols and to
+Typst's angle type, and importing quadrille must not hide them.
 
 ### Where a function is undefined
 
@@ -118,6 +119,18 @@ drawn there.
 ```typst
 #graph(x: (-4, 4), y: (-1, 5), scale: 8mm,
   points((-3, 0, $q_2$), (3, 0, $q_1$), (0, 4, $A$), connect: "all"),
+)
+```
+
+**Angles**, named, measured or given (for a drawing that is not to scale):
+
+```typst
+#let (B, C, A) = ((1, 1), (7, 1), (4, 5))
+#graph(x: (0, 8), y: (0, 6), scale: 8mm,
+  points((..B, $B$), (..C, $C$), (..A, $A$), connect: "all"),
+  arc(B, C, A, $alpha$),                // a name
+  arc(A, B, C, $beta$, value: auto),    // β = 73.7°, measured
+  arc(C, A, B, value: 60deg),           // 60°, as given in the question
 )
 ```
 

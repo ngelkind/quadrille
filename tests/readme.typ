@@ -58,3 +58,12 @@
 #graph(x: (-4, 4), y: (-1, 5), scale: 8mm,
   points((-3, 0, $q_2$), (3, 0, $q_1$), (0, 4, $A$), connect: "all"),
 )
+
+#pagebreak(weak: true)
+#let (B, C, A) = ((1, 1), (7, 1), (4, 5))
+#graph(x: (0, 8), y: (0, 6), scale: 8mm,
+  points((..B, $B$), (..C, $C$), (..A, $A$), connect: "all"),
+  arc(B, C, A, $alpha$),                // a name
+  arc(A, B, C, $beta$, value: auto),    // β = 73.7°, measured
+  arc(C, A, B, value: 60deg),           // 60°, as given in the question
+)

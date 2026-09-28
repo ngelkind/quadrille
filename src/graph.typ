@@ -215,6 +215,7 @@
       if e.kind in ("segment", "vector") { xs += (e.a.at(0), e.b.at(0)) }
       if e.kind == "vline" { xs.push(e.v) }
       if e.kind == "annotate" { xs.push(e.p.at(0)) }
+      if e.kind == "arc" { xs.push(e.vertex.at(0)) }
       if e.kind in ("fn", "area", "points") and e.domain != auto { xs += e.domain }
       if e.kind == "parametric" {
         for t in spaced(..e.domain, auto, 60) {
@@ -245,6 +246,7 @@
       if e.kind in ("segment", "vector") { ys += (e.a.at(1), e.b.at(1)) }
       if e.kind == "hline" { ys.push(e.v) }
       if e.kind == "annotate" { ys.push(e.p.at(1)) }
+      if e.kind == "arc" { ys.push(e.vertex.at(1)) }
       if e.kind in ("fn", "points") and e.f != none {
         for xv in fn-xs(e) { let v = value-at(e.f, xv, e.kind); if v != none { curve-ys.push(v) } }
       }
@@ -499,6 +501,51 @@
       if e.label != none {
         keys.push((box(width: 1.6em, height: 0.8em, place(horizon + left, line(length: 100%, stroke: s))), e.label))
       }
+    } else if k == "arc" {
+      // drawn on paper, between the two rays as they are drawn (also when x and y scales differ)
+      let s = _stroke(e.stroke, st.ink, st.helper)
+      let c = P(e.vertex)
+      let unit(p) = {
+        let q = P(p)
+        let (dx, dy) = (q.at(0) - c.at(0), q.at(1) - c.at(1))
+        let n = calc.sqrt(dx * dx + dy * dy)
+        ((dx / n, dy / n), n)
+      }
+      let ((u, lu), (w, lw)) = (unit(e.from), unit(e.to))
+      let r = if e.radius == auto { calc.min(_pt(6mm), 0.4 * calc.min(lu, lw)) } else { _pt(e.radius) }
+      let at(k, dir) = (c.at(0) + k * dir.at(0), c.at(1) + k * dir.at(1))
+      let (ta, tb) = (calc.atan2(..u), calc.atan2(..w))
+      let sweep = (tb - ta).deg()
+      sweep = calc.rem(sweep + 540, 360) - 180          // the smaller way round, -180 to 180
+      let pts = if e.right {
+        let k = r * 0.75
+        (at(k, u), (c.at(0) + k * (u.at(0) + w.at(0)), c.at(1) + k * (u.at(1) + w.at(1))), at(k, w))
+      } else {
+        let n = calc.max(2, calc.ceil(calc.abs(sweep) / 3))
+        range(n + 1).map(i => { let t = ta + sweep * 1deg * i / n; (c.at(0) + r * calc.cos(t), c.at(1) + r * calc.sin(t)) })
+      }
+      if e.fill != none {
+        let color = if e.fill == auto { s.paint.transparentize(st.area) } else { e.fill }
+        under.push(_curve((c,) + pts + (c,), fill: color, closed: true))
+      }
+      lines.push(_curve(pts, stroke: s))
+      ink.push(pts)
+      // the name on the bisector, just outside the arc
+      let mid = ta + sweep * 1deg / 2
+      let (nx, ny) = (calc.cos(mid), calc.sin(mid))
+      let h = if calc.abs(nx) < 0.38 { none } else if nx > 0 { right } else { left }
+      let v = if calc.abs(ny) < 0.38 { none } else if ny > 0 { bottom } else { top }
+      let side = if h == none { if v == none { center } else { v } } else if v == none { h } else { h + v }
+      let tip = if e.right { r * 0.75 * calc.sqrt(2) } else { r }
+      // on the bisector, moving out until a long text fits between the two sides
+      if inside(e.vertex) and e.body != none {
+        let spots = range(0, 80, step: 3).map(d => at(tip + d, (nx, ny)))
+        let prefs = if e.pos == auto { (side,) } else { (e.pos,) }
+        texts.push((ats: spots, prefs: prefs, body: e.body, size: 1em, pad: 0, far: 0.25))
+      }
+      if e.label != none {
+        keys.push((box(width: 1.6em, height: 0.8em, place(horizon + left, line(length: 100%, stroke: s))), e.label))
+      }
     } else if k == "annotate" {
       if inside(e.p) { texts.push((ats: (P(e.p),), prefs: (e.pos,), body: e.body, size: 1em, pad: 0)) }
     }
@@ -593,7 +640,7 @@
     for (i, at) in t.ats.enumerate() {
       for (n, side) in t.prefs.enumerate() {
         let r = _rect(at, side, w, h, gap + t.pad)
-        let cost = _cost(taken, r, W, H) + n * 0.5 + i * 1.5
+        let cost = _cost(taken, r, W, H) + n * 0.5 + i * t.at("far", default: 1.5)
         if best == none or cost < best.at(0) { best = (cost, r) }
       }
     }
